@@ -30,10 +30,11 @@ def fetchMovieTitles(services):
 def selectService(services):
     serviceId = False
     servicesCount = len(services)
+    print('--- Select a Service ---')
     while(not(serviceId)):
         for i in range(servicesCount):
-            service = services[i]
             print()
+            service = services[i]
             print('[{id}] {serviceName}'.format(id=i + 1, serviceName=type(service).__name__ ))
             for movie in service.movies:
                 print('--- {movieTitle}'.format(movieTitle=movie.title))
