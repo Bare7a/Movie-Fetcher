@@ -3,7 +3,7 @@ from Services.PutLocker import PutLocker
 def main():
     services = []
     services.append(PutLocker())
-    services.append(PutLocker())
+    # services.append(PutLocker())
 
     fetchMovieTitles(services)
     service = selectService(services)

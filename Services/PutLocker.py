@@ -1,12 +1,13 @@
 import re
 import json
+import requests
 from pyquery import PyQuery as pq
 
 from Services.Models.Movie import Movie 
 from Services.Models.Server import Server
 from Services.Models.Service import Service
 
-DOMAIN = 'https://www3.putlocker.vip'
+DOMAIN = 'https://www9.putlocker.vip'
 SEARCH_API = DOMAIN + '/movie/search/'
 MOVIE_EMBED_API = DOMAIN + '/ajax/movie_embed/'
 MOVIE_EPISODES_API = DOMAIN + '/ajax/movie_episodes/'
@@ -14,7 +15,11 @@ MOVIE_EPISODES_API = DOMAIN + '/ajax/movie_episodes/'
 class PutLocker(Service):
     def getAllMovieTitles(self, movieName):
         searchUrl = SEARCH_API + movieName
-        d = pq(url=searchUrl)
+        session = requests.Session()
+        response = session.get(searchUrl, headers={'User-Agent': 'Mozilla/5.0'})
+
+        html = response.text
+        d = pq(html)
         mlItems = d('.ml-item')
         mlItemsCount = mlItems.size()
 
@@ -23,7 +28,7 @@ class PutLocker(Service):
             mlItem = mlItems.eq(i)
             mlLink = mlItem('a')
 
-            mId = mlItem.attr['data-movie-id']
+            mId = re.findall('[0-9]+', mlLink.attr['data-url'])[0]
             mUrl = MOVIE_EPISODES_API + mId
             mTitle = mlLink.attr['title']
 
@@ -62,7 +67,7 @@ class PutLocker(Service):
 
     def getAllAvailableLinksById(self, movieId):
         moviesCount = len(self.movies)
-        if(movieId >= 1 and movieId <= moviesCount):
+        if(movieId >= 0 and movieId < moviesCount):
             movieUrl = self.movies[movieId].url
             self.servers = self.getAllAvailableLinks(movieUrl)
             return self.servers
